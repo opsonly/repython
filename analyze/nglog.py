@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+ #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 # @Time : 2019-10-22 08:45 
 # @Author : opsonly 
@@ -33,13 +33,22 @@ def count(key,data):
 
 
 def analyze(path):
-    data = {
-        'ip':{},
-        'url':{},
-        'ua':{},
-        'status':{}
-    }
+    ret = {}
+
+    def init_data():
+        return {
+            'ip':{},
+            'url':{},
+            'ua':{},
+            'status':{}
+        }
     for item in parse(path):
+        time = item['time'].strftime('%Y%m%d%H%M')
+        if time not in ret.keys():
+            ret[time] = init_data()
+
+        data = ret[time]
+
         for key,value in data.items():
 
             if key != 'throughput':
@@ -50,10 +59,19 @@ def analyze(path):
         data['throughput'] += int(item['length'])
 
 
-    return data
+    return ret
 
 
 def render_line(name,data):
     pass
 
+def render_pie(name,data):
+    pass
 
+def main():
+    data = analyze(sys.argv[1])
+
+    throughput = []
+    rs = list(data.items())
+    rs.sort(key=lambda x:x[0])
+    throughput = [x[1]['throughput'] for x in rs]
